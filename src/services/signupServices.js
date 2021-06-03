@@ -4,7 +4,7 @@ async function createUserAsync(name, email, password, passwordConfirmation) {
     return apiClient
         .get('/sanctum/csrf-cookie')
         .then(() => {
-            return apiClient.post('/register', {
+            return apiClient.post('/api/register', {
                 name: name,
                 email: email,
                 password: password,

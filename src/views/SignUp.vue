@@ -75,6 +75,38 @@
               </v-card-actions>
             </v-card>
           </v-flex>
+          <DialogLoading
+              :isDisplayed="showDialogLoading"
+              text="Creating new user"
+          />
+          <DialogError
+              :title="DialogErrorTitle"
+              :text="DialogErrorText"
+              :isDisplayed="showDialogError"
+              @close="closeDialogError"
+          >
+            <template v-if="Object.keys(DialogErrorJson).length" >
+              <v-list-item  v-for="(errorListValue, formFieldName) in DialogErrorJson"  >
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ formFieldName | capitalize }}
+                  </v-list-item-title>
+
+                  <v-list-item-subtitle v-for="(errorTextValue) in errorListValue"  >
+                    - {{ errorTextValue }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </DialogError>
+          <DialogInformation
+              :title="DialogInformationTitle"
+              :text="DialogInformationText"
+              :isDisplayed="showDialogInformation"
+              @close="handleConfirmUserCreated"
+          >
+
+          </DialogInformation>
         </v-layout>
       </v-container>
     </v-main>
@@ -83,9 +115,13 @@
 
 <script>
 import {mapGetters} from 'vuex'
-import {createUserAsync}  from "@/services/signupServices";
+import {createUserAsync} from "@/services/signupServices";
+import DialogLoading from "@/components/DialogLoading";
+import DialogError from "@/components/DialogError";
+import DialogInformation from "@/components/DialogInformation";
 
 export default {
+  name: "SignUp",
   data: () => ({
     showPassword: false,
     showPasswordConfirm: false,
@@ -107,25 +143,89 @@ export default {
     passwordConfirmation: '',
     passwordConfirmationRules: {
       required: v => !!v || 'Confirm Password is required'
-    }
-  }),
-  methods: {
+    },
 
+    showDialogLoading: false,
+    showDialogError: false,
+    showDialogInformation: false,
+
+    DialogErrorTitle: '',
+    DialogErrorText: '',
+    DialogErrorJson: {},
+
+    DialogInformationTitle: '',
+    DialogInformationText: '',
+  }),
+  components: {
+    DialogInformation,
+    DialogLoading,
+    DialogError
+  },
+  methods: {
+    openDialogLoading() {
+      this.showDialogLoading = true;
+    },
+    closeDialogLoading() {
+      this.showDialogLoading = false;
+    },
+    openDialogError() {
+      this.showDialogError = true;
+    },
+    closeDialogError() {
+      this.showDialogError = false;
+    },
+    openDialogInformation() {
+      this.showDialogInformation = true;
+    },
+    closeDialogInformation() {
+      this.showDialogInformation = false;
+    },
+    handleConfirmUserCreated(){
+      this.closeDialogInformation();
+      this.$router.push('/signin');
+    },
+    handleCreateUserError(error) {
+      this.isDebugEnabled && console.log('handleCreateUserError.error.response', error.response);
+      this.closeDialogLoading();
+
+      if (!!error.response.data.message) {
+        this.DialogErrorTitle = error.response.data.message;
+      }
+
+      if (!!error.response.data.errors) {
+        this.DialogErrorJson = error.response.data.errors;
+      }
+
+      this.openDialogError();
+
+      return false;
+    },
     handleCreateUserResponse(response) {
       this.isDebugEnabled && console.log('handleCreateUserResponse.response', response);
+      this.closeDialogLoading();
 
-      this.$router.push('/signin')
+      if (!!response.data.status) {
+        this.DialogInformationTitle = response.data.status;
+      }
+      if (!!response.data.message) {
+        this.DialogInformationText = response.data.message;
+      }
+
+      this.openDialogInformation();
     },
     submitSignUpForm() {
       const signupFormIsValid = this.$refs.form.validate()
       this.isDebugEnabled && console.log('signupFormIsValid', signupFormIsValid);
 
       if (signupFormIsValid) {
+        this.openDialogLoading();
         createUserAsync(
             this.name,
             this.email,
             this.password,
             this.passwordConfirmation
+        ).catch(
+            this.handleCreateUserError
         ).then(
             this.handleCreateUserResponse
         );
