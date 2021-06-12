@@ -16,6 +16,7 @@
                 >
                   <v-text-field
                       prepend-icon="mdi-account"
+                      id="v-text-field-name"
                       v-model="name"
                       :counter="20"
                       :rules="nameRules"
