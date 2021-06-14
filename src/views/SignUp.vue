@@ -26,6 +26,7 @@
 
                   <v-text-field
                       prepend-icon="mdi-email"
+                      id="v-text-field-email"
                       v-model="email"
                       :rules="emailRules"
                       label="E-mail"
@@ -34,6 +35,7 @@
 
                   <v-text-field
                       prepend-icon="mdi-lock"
+                      id="v-text-field-password"
                       v-model="password"
                       :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                       :rules="passwordRules"
@@ -46,6 +48,7 @@
 
                   <v-text-field
                       prepend-icon="mdi-lock"
+                      id="v-text-field-confirm-password"
                       v-model="passwordConfirmation"
                       :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                       :rules="[passwordConfirmationRules.required, passwordConfirmationRule]"
@@ -58,7 +61,7 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn block color="primary" @click="submitSignUpForm">SIGN UP</v-btn>
+                <v-btn id="v-btn-signup" block color="primary" @click="submitSignUpForm">SIGN UP</v-btn>
               </v-card-actions>
 
               <v-card-actions>
@@ -143,7 +146,7 @@ export default {
     ],
     passwordConfirmation: '',
     passwordConfirmationRules: {
-      required: v => !!v || 'Confirm Password is required'
+      required: v => !!v || 'Password Confirmation is required'
     },
 
     showDialogLoading: false,

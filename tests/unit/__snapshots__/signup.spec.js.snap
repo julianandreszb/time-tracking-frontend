@@ -1,0 +1,115 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SignUp snapshot 1`] = `
+<div data-app="true" class="v-application v-application--is-ltr theme--light" id="inspire">
+  <div class="v-application--wrap">
+    <main class="v-main" style="padding: 0px 0px 0px 0px;">
+      <div class="v-main__wrap">
+        <div class="container container--fluid fill-height">
+          <div class="layout align-center justify-center">
+            <div class="flex xs12 sm8 md4">
+              <div class="elevation-12 v-card v-sheet theme--light">
+                <header class="v-sheet theme--dark v-toolbar primary" style="height: 64px;">
+                  <div class="v-toolbar__content" style="height: 64px;">
+                    <div class="v-toolbar__title">SIGN UP</div>
+                  </div>
+                </header>
+                <div class="v-card__text">
+                  <form novalidate="novalidate" class="v-form">
+                    <div class="v-input theme--light v-text-field">
+                      <div class="v-input__prepend-outer">
+                        <div class="v-input__icon v-input__icon--prepend"><i aria-hidden="true" class="v-icon notranslate mdi mdi-account theme--light"></i></div>
+                      </div>
+                      <div class="v-input__control">
+                        <div class="v-input__slot">
+                          <div class="v-text-field__slot"><label for="v-text-field-name" class="v-label theme--light" style="left: 0px; position: absolute;">Name</label><input required="required" id="v-text-field-name" type="text"></div>
+                        </div>
+                        <div class="v-text-field__details">
+                          <div class="v-messages theme--light">
+                            <transition-group-stub tag="div" name="message-transition" class="v-messages__wrapper"></transition-group-stub>
+                          </div>
+                          <div class="v-counter theme--light">0 / 20</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="v-input theme--light v-text-field">
+                      <div class="v-input__prepend-outer">
+                        <div class="v-input__icon v-input__icon--prepend"><i aria-hidden="true" class="v-icon notranslate mdi mdi-email theme--light"></i></div>
+                      </div>
+                      <div class="v-input__control">
+                        <div class="v-input__slot">
+                          <div class="v-text-field__slot"><label for="v-text-field-email" class="v-label theme--light" style="left: 0px; position: absolute;">E-mail</label><input required="required" id="v-text-field-email" type="text"></div>
+                        </div>
+                        <div class="v-text-field__details">
+                          <div class="v-messages theme--light">
+                            <transition-group-stub tag="div" name="message-transition" class="v-messages__wrapper"></transition-group-stub>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="v-input theme--light v-text-field">
+                      <div class="v-input__prepend-outer">
+                        <div class="v-input__icon v-input__icon--prepend"><i aria-hidden="true" class="v-icon notranslate mdi mdi-lock theme--light"></i></div>
+                      </div>
+                      <div class="v-input__control">
+                        <div class="v-input__slot">
+                          <div class="v-text-field__slot"><label for="v-text-field-password" class="v-label theme--light" style="left: 0px; position: absolute;">Password</label><input id="v-text-field-password" type="password"></div>
+                          <div class="v-input__append-inner">
+                            <div class="v-input__icon v-input__icon--append"><button type="button" aria-label="append icon" class="v-icon notranslate v-icon--link mdi mdi-eye-off theme--light"></button></div>
+                          </div>
+                        </div>
+                        <div class="v-text-field__details">
+                          <div class="v-messages theme--light">
+                            <transition-group-stub tag="div" name="message-transition" class="v-messages__wrapper"></transition-group-stub>
+                          </div>
+                          <div class="v-counter theme--light">0</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="v-input theme--light v-text-field">
+                      <div class="v-input__prepend-outer">
+                        <div class="v-input__icon v-input__icon--prepend"><i aria-hidden="true" class="v-icon notranslate mdi mdi-lock theme--light"></i></div>
+                      </div>
+                      <div class="v-input__control">
+                        <div class="v-input__slot">
+                          <div class="v-text-field__slot"><label for="v-text-field-confirm-password" class="v-label theme--light" style="left: 0px; position: absolute;">Confirm Password</label><input id="v-text-field-confirm-password" type="password"></div>
+                          <div class="v-input__append-inner">
+                            <div class="v-input__icon v-input__icon--append"><button type="button" aria-label="append icon" class="v-icon notranslate v-icon--link mdi mdi-eye-off theme--light"></button></div>
+                          </div>
+                        </div>
+                        <div class="v-text-field__details">
+                          <div class="v-messages theme--light">
+                            <transition-group-stub tag="div" name="message-transition" class="v-messages__wrapper"></transition-group-stub>
+                          </div>
+                          <div class="v-counter theme--light">0</div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="v-card__actions"><button type="button" class="v-btn v-btn--block v-btn--is-elevated v-btn--has-bg theme--light v-size--default primary" id="v-btn-signup"><span class="v-btn__content">SIGN UP</span></button></div>
+                <div class="v-card__actions">
+                  <div class="spacer"></div>
+                  <p class="my-2">Have already an account?</p> <a class="ma-1 v-btn v-btn--plain v-btn--router theme--light v-size--default primary--text"><span class="v-btn__content">
+                Login here
+              </span></a>
+                  <div class="spacer"></div>
+                </div>
+              </div>
+            </div>
+            <div role="dialog" class="v-dialog__container">
+              <!---->
+            </div>
+            <div role="dialog" class="v-dialog__container">
+              <!---->
+            </div>
+            <div role="dialog" class="v-dialog__container">
+              <!---->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+`;
