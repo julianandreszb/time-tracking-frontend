@@ -1,7 +1,11 @@
-import {createLocalVue, RouterLinkStub, mount} from '@vue/test-utils'
+import {createLocalVue, RouterLinkStub, mount, shallowMount} from '@vue/test-utils'
 import SignUp from "@/views/SignUp";
+import DialogInformation from "@/components/DialogInformation";
 import Vuetify from "vuetify";
 import store from "@/store/store";
+import moxios from 'moxios'
+import axios from "axios";
+import 'intersection-observer';
 
 describe('SignUp', () => {
 
@@ -19,6 +23,11 @@ describe('SignUp', () => {
                 RouterLink: RouterLinkStub
             }
         });
+    });
+
+    afterEach(function () {
+        // import and pass your custom axios instance to this method
+        moxios.uninstall()
     });
 
     test('snapshot', () => {
@@ -51,7 +60,7 @@ describe('SignUp', () => {
 
     });
 
-    test('fill valid values into form input fields', () => {
+    test('fill valid values into form input fields', async () => {
 
         const wrapperName = wrapper.find('#v-text-field-name');
         const wrapperEmail = wrapper.find('#v-text-field-email');
@@ -70,6 +79,8 @@ describe('SignUp', () => {
 
         wrapper.find('#v-btn-signup').trigger('click'); // wrapper.vm.$refs.form.validate();
 
+        await wrapper.vm.$nextTick();
+
         expect(wrapper.vm.name).toBe('Neil DeGrasse Tyson');
         expect(wrapper.vm.email).toBe('neil_degrasse_tyson@test.com');
         expect(wrapper.vm.password).toBe('ABC123456789');
@@ -82,6 +93,47 @@ describe('SignUp', () => {
         expect(signUpFormHtml).not.toContain('Password Confirmation is required');
         expect(signUpFormHtml).not.toContain('Password must match');
 
+    });
+
+    test('create new user', async () => {
+
+        moxios.install();
+        vuetify = new Vuetify()
+        wrapper = shallowMount(SignUp, {
+            localVue,
+            vuetify,
+            store,
+            stubs: {
+                RouterLink: RouterLinkStub
+            }
+        });
+
+        moxios.stubRequest('/api/register', {
+            status: 200,
+            response: {
+                "status": "Success",
+                "message":"User created successfully",
+                "data": {
+                    "name":"Julian Zapata",
+                    "email":"JulianAndresZB@gmail.com",
+                    "updated_at":"2021-06-16T04:27:58.000000Z",
+                    "created_at":"2021-06-16T04:27:58.000000Z",
+                    "id":1
+                }
+            }
+        });
+
+        axios.post('/api/register').then(async response => {
+            wrapper.vm.DialogInformationTitle = response.data.status;
+            wrapper.vm.DialogInformationText = response.data.message;
+            wrapper.vm.showDialogInformation = true;
+
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.findComponent(DialogInformation).html()).toContain('Success'); // Status
+            expect(wrapper.findComponent(DialogInformation).html()).toContain('User created successfully'); // message
+
+        });
     });
 
     function signUpFormContent() {
