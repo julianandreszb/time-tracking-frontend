@@ -20,6 +20,7 @@
                       v-model="email"
                       :rules="emailRules"
                       label="E-mail"
+                      data-testid="email"
                       required
                   />
 
@@ -30,6 +31,7 @@
                       :rules="passwordRules"
                       :type="showPassword ? 'text' : 'password'"
                       label="Password"
+                      data-testid="password"
                       counter
                       @click:append="showPassword = !showPassword"
                   ></v-text-field>
@@ -37,7 +39,7 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn  block color="primary" @click="submitFormTest">SIGN IN</v-btn>
+                <v-btn data-testid="sign-in"  block color="primary" @click="submitSignInForm">SIGN IN</v-btn>
               </v-card-actions>
 
               <v-card-actions>
@@ -48,6 +50,7 @@
                     color="primary"
                     plain
                     to="/signup"
+                    data-testid="sign-up"
                 >
                   Sign Up here
                 </v-btn>
@@ -65,6 +68,7 @@
 import apiClient from "@/services/apiServices";
 
 export default {
+  name: 'SignIn',
   data: () => ({
     showPassword: false,
     showPasswordConfirm: false,
@@ -91,47 +95,51 @@ export default {
     resetValidation() {
       this.$refs.form.resetValidation()
     },
-    submitFormTest() {
+    submitSignInForm() {
 
-      apiClient.get('/sanctum/csrf-cookie')
-          .then(response => {
+      const signupFormIsValid = this.$refs.form.validate()
+      this.isDebugEnabled && console.log('signupFormIsValid', signupFormIsValid);
 
-            console.log('/sanctum/csrf-cookie.response', response);
 
-            // apiClient.post('/registerNewUser', {
-            //   name: this.name,
-            //   email: this.email,
-            //   password: this.password,
-            //   password_confirmation: this.passwordConfirmation,
-            // }).then(response => {
-            //   console.log('/registerNewUser.response', response);
-            // });
-
-            // apiClient.post('/login', {
-            //   // name: this.name,
-            //   email: this.email,
-            //   password: this.password,
-            //   // password_confirmation: this.passwordConfirmation,
-            // }).then(response => {
-            //   console.log('/login.response', response);
-            // });
-
-            // apiClient.post('/api/test-csrf-cookie').then(response => {
-            //   console.log('/test-csrf-cookie.response', response);
-            // });
-
-            apiClient.post('/login', {
-              'email': this.email,
-              'password': this.password
-            }).then(response => {
-              console.log('/login.response', response);
-
-              apiClient.post('/api/test-csrf-cookie').then(response => {
-                console.log('/test-csrf-cookie.response', response);
-              });
-            });
-
-          });
+      // apiClient.get('/sanctum/csrf-cookie')
+      //     .then(response => {
+      //
+      //       console.log('/sanctum/csrf-cookie.response', response);
+      //
+      //       // apiClient.post('/registerNewUser', {
+      //       //   name: this.name,
+      //       //   email: this.email,
+      //       //   password: this.password,
+      //       //   password_confirmation: this.passwordConfirmation,
+      //       // }).then(response => {
+      //       //   console.log('/registerNewUser.response', response);
+      //       // });
+      //
+      //       // apiClient.post('/login', {
+      //       //   // name: this.name,
+      //       //   email: this.email,
+      //       //   password: this.password,
+      //       //   // password_confirmation: this.passwordConfirmation,
+      //       // }).then(response => {
+      //       //   console.log('/login.response', response);
+      //       // });
+      //
+      //       // apiClient.post('/api/test-csrf-cookie').then(response => {
+      //       //   console.log('/test-csrf-cookie.response', response);
+      //       // });
+      //
+      //       apiClient.post('/login', {
+      //         'email': this.email,
+      //         'password': this.password
+      //       }).then(response => {
+      //         console.log('/login.response', response);
+      //
+      //         apiClient.post('/api/test-csrf-cookie').then(response => {
+      //           console.log('/test-csrf-cookie.response', response);
+      //         });
+      //       });
+      //
+      //     });
     }
   },
 }

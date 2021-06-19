@@ -25,11 +25,6 @@ describe('SignUp', () => {
         });
     });
 
-    afterEach(function () {
-        // import and pass your custom axios instance to this method
-        moxios.uninstall()
-    });
-
     test('snapshot', () => {
         expect(wrapper).toMatchSnapshot();
     });
@@ -114,8 +109,8 @@ describe('SignUp', () => {
                 "status": "Success",
                 "message":"User created successfully",
                 "data": {
-                    "name":"Julian Zapata",
-                    "email":"JulianAndresZB@gmail.com",
+                    "name":"Test Test",
+                    "email":"test@test.com",
                     "updated_at":"2021-06-16T04:27:58.000000Z",
                     "created_at":"2021-06-16T04:27:58.000000Z",
                     "id":1
@@ -130,10 +125,11 @@ describe('SignUp', () => {
 
             await wrapper.vm.$nextTick();
 
-            expect(wrapper.findComponent(DialogInformation).html()).toContain('Success'); // Status
-            expect(wrapper.findComponent(DialogInformation).html()).toContain('User created successfully'); // message
-
+            expect(wrapper.findComponent(DialogInformation).html()).toContain(response.data.status); // Success
+            expect(wrapper.findComponent(DialogInformation).html()).toContain(response.data.message); // User created successfully
         });
+
+        moxios.uninstall();
     });
 
     function signUpFormContent() {
