@@ -58,6 +58,18 @@
               </v-card-actions>
             </v-card>
           </v-flex>
+
+          <DialogError
+              :title="dialogErrorTitle"
+              :text="dialogErrorText"
+              :isDisplayed="showDialogError"
+              @close="closeDialogError"
+              data-testid="dialog-error"
+          >
+            <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
+          </DialogError>
+
+
         </v-layout>
       </v-container>
     </v-main>
@@ -65,10 +77,17 @@
 </template>
 
 <script>
-import apiClient from "@/services/apiServices";
+import DialogError from '@/components/DialogError/DialogError'
+import ErrorListHelper from '@/components/ErrorListHelper/ErrorListHelper'
+import {loginUserAsync} from '@/services/signinServices'
+import dialogErrorMethods from '@/components/DialogError/dialogErrorMethods'
 
 export default {
   name: 'SignIn',
+  components: {
+    DialogError,
+    ErrorListHelper
+  },
   data: () => ({
     showPassword: false,
     showPasswordConfirm: false,
@@ -84,21 +103,24 @@ export default {
     passwordRules: [
       v => !!v || 'Password is required',
     ],
+
+    showDialogError: false,
+
+    dialogErrorTitle: '',
+    dialogErrorText: '',
+    dialogErrorJson: {},
   }),
   methods: {
-    validate() {
-      this.$refs.form.validate()
-    },
-    reset() {
-      this.$refs.form.reset()
-    },
-    resetValidation() {
-      this.$refs.form.resetValidation()
-    },
+   ...dialogErrorMethods,
+
     submitSignInForm() {
 
       const signupFormIsValid = this.$refs.form.validate()
       this.isDebugEnabled && console.log('signupFormIsValid', signupFormIsValid);
+
+      loginUserAsync(this.email, this.password).then(response => {
+        this.isDebugEnabled && console.log('loginUserAsync.response', response);
+      });
 
 
       // apiClient.get('/sanctum/csrf-cookie')

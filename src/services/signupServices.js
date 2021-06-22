@@ -13,7 +13,6 @@ async function createUserAsync(name, email, password, passwordConfirmation) {
         });
 }
 
-
 export {
     createUserAsync
 }

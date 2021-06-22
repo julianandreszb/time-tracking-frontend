@@ -23,7 +23,6 @@
                       label="Name"
                       required
                   />
-
                   <v-text-field
                       prepend-icon="mdi-email"
                       id="v-text-field-email"
@@ -32,7 +31,6 @@
                       label="E-mail"
                       required
                   />
-
                   <v-text-field
                       prepend-icon="mdi-lock"
                       id="v-text-field-password"
@@ -44,8 +42,6 @@
                       counter
                       @click:append="showPassword = !showPassword"
                   ></v-text-field>
-
-
                   <v-text-field
                       prepend-icon="mdi-lock"
                       id="v-text-field-confirm-password"
@@ -59,11 +55,9 @@
                   ></v-text-field>
                 </v-form>
               </v-card-text>
-
               <v-card-actions>
                 <v-btn id="v-btn-signup" block color="primary" @click="submitSignUpForm">SIGN UP</v-btn>
               </v-card-actions>
-
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <p class="my-2">Have already an account?</p>
@@ -84,28 +78,17 @@
               text="Creating new user"
           />
           <DialogError
-              :title="DialogErrorTitle"
-              :text="DialogErrorText"
+              :title="dialogErrorTitle"
+              :text="dialogErrorText"
               :isDisplayed="showDialogError"
               @close="closeDialogError"
+              data-testid="dialog-error"
           >
-            <template v-if="Object.keys(DialogErrorJson).length" >
-              <v-list-item  v-for="(errorListValue, formFieldName) in DialogErrorJson"  >
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ formFieldName | capitalize }}
-                  </v-list-item-title>
-
-                  <v-list-item-subtitle v-for="(errorTextValue) in errorListValue"  >
-                    - {{ errorTextValue }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
+            <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
           </DialogError>
           <DialogInformation
-              :title="DialogInformationTitle"
-              :text="DialogInformationText"
+              :title="dialogInformationTitle"
+              :text="dialogInformationText"
               :isDisplayed="showDialogInformation"
               @close="handleConfirmUserCreated"
           >
@@ -120,71 +103,45 @@
 <script>
 import {mapGetters} from 'vuex'
 import {createUserAsync} from "@/services/signupServices";
-import DialogLoading from "@/components/DialogLoading";
-import DialogError from "@/components/DialogError";
-import DialogInformation from "@/components/DialogInformation";
+
+import DialogLoading from "@/components/DialogLoading/DialogLoading";
+import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
+import dialogLoadingMethods from '@/components/DialogLoading/dialogLoadingMethods'
+
+import DialogError from "@/components/DialogError/DialogError";
+import dialogErrorData from "@/components/DialogError/dialogErrorData";
+import dialogErrorMethods from '@/components/DialogError/dialogErrorMethods'
+
+import DialogInformation from "@/components/DialogInformation/DialogInformation";
+import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
+import dialogInformationMethods from '@/components/DialogInformation/dialogInformationMethods'
+
+import ErrorListHelper from "@/components/ErrorListHelper/ErrorListHelper";
+import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
+
+import {signUpData} from '@/components/Shared/registrationData'
 
 export default {
   name: "SignUp",
   data: () => ({
-    showPassword: false,
-    showPasswordConfirm: false,
-    valid: true,
-    name: '',
-    nameRules: [
-      v => !!v || 'Name is required',
-      v => (v && v.length <= 20) || 'Name must be less than 10 characters',
-    ],
-    email: '',
-    emailRules: [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-    ],
-    password: '',
-    passwordRules: [
-      v => !!v || 'Password is required'
-    ],
-    passwordConfirmation: '',
-    passwordConfirmationRules: {
-      required: v => !!v || 'Password Confirmation is required'
-    },
-
-    showDialogLoading: false,
-    showDialogError: false,
-    showDialogInformation: false,
-
-    DialogErrorTitle: '',
-    DialogErrorText: '',
-    DialogErrorJson: {},
-
-    DialogInformationTitle: '',
-    DialogInformationText: '',
+    ...dialogErrorData,
+    ...dialogInformationData,
+    ...dialogLoadingData,
+    ...errorListHelperData,
+    ...signUpData
   }),
   components: {
+    ErrorListHelper,
     DialogInformation,
     DialogLoading,
     DialogError
   },
   methods: {
-    openDialogLoading() {
-      this.showDialogLoading = true;
-    },
-    closeDialogLoading() {
-      this.showDialogLoading = false;
-    },
-    openDialogError() {
-      this.showDialogError = true;
-    },
-    closeDialogError() {
-      this.showDialogError = false;
-    },
-    openDialogInformation() {
-      this.showDialogInformation = true;
-    },
-    closeDialogInformation() {
-      this.showDialogInformation = false;
-    },
-    handleConfirmUserCreated(){
+    ...dialogErrorMethods,
+    ...dialogInformationMethods,
+    ...dialogLoadingMethods,
+
+    handleConfirmUserCreated() {
       this.closeDialogInformation();
       this.$router.push('/signin');
     },
@@ -193,11 +150,11 @@ export default {
       this.closeDialogLoading();
 
       if (!!error.response.data.message) {
-        this.DialogErrorTitle = error.response.data.message;
+        this.dialogErrorTitle = error.response.data.message;
       }
 
       if (!!error.response.data.errors) {
-        this.DialogErrorJson = error.response.data.errors;
+        this.dialogErrorJson = error.response.data.errors;
       }
 
       this.openDialogError();
@@ -208,14 +165,16 @@ export default {
       this.isDebugEnabled && console.log('handleCreateUserResponse.response', response);
       this.closeDialogLoading();
 
-      if (!!response.data.status) {
-        this.DialogInformationTitle = response.data.status;
-      }
-      if (!!response.data.message) {
-        this.DialogInformationText = response.data.message;
-      }
+      if (!!response) {
+        if (!!response.data.status) {
+          this.dialogInformationTitle = response.data.status;
+        }
+        if (!!response.data.message) {
+          this.dialogInformationText = response.data.message;
+        }
 
-      this.openDialogInformation();
+        this.openDialogInformation();
+      }
     },
     submitSignUpForm() {
       const signupFormIsValid = this.$refs.form.validate()

@@ -2,6 +2,8 @@ import {createLocalVue, mount, RouterLinkStub} from '@vue/test-utils'
 import Vuetify from "vuetify";
 import SignIn from "@/views/SignIn";
 import store from "@/store/store";
+import moxios from "moxios";
+import axios from "axios";
 
 describe('SignIn', () => {
 
@@ -19,7 +21,6 @@ describe('SignIn', () => {
                 RouterLink: RouterLinkStub
             }
         });
-
     });
 
     test('form fields exist', () => {
@@ -27,6 +28,7 @@ describe('SignIn', () => {
         expect(wrapper.find('[data-testid="password"]').exists()).toBeTruthy();
         expect(wrapper.find('[data-testid="sign-in"]').exists()).toBeTruthy();
         expect(wrapper.find('[data-testid="sign-up"]').exists()).toBeTruthy();
+        expect(wrapper.find('[data-testid="dialog-error"]').exists()).toBeTruthy();
     });
 
     test('submitSignInForm method is called', async () => {
@@ -78,12 +80,52 @@ describe('SignIn', () => {
         expect(signInFormContentHtml).not.toContain('E-mail must be valid');
         //</editor-fold>
 
+        //<editor-fold desc="Test password required">
+        const wrapperPassword = wrapper.find('[data-testid="password"]');
+        wrapperPassword.element.value = '';
+        wrapperPassword.trigger('input');
+        wrapperSignInButton.trigger('click');
+        await wrapper.vm.$nextTick();
+        signInFormContentHtml = signInFormContent();
+        expect(signInFormContentHtml).toContain('Password is required');
+        //</editor-fold>
 
-        // const wrapperPassword = wrapper.find('[data-testid="password"]');
-        // wrapperPassword.element.value = '';
+        //<editor-fold desc="Test valid password">
+        wrapperPassword.element.value = '123456789';
+        wrapperPassword.trigger('input');
+        wrapperSignInButton.trigger('click');
+        await wrapper.vm.$nextTick();
+        signInFormContentHtml = signInFormContent();
+        expect(signInFormContentHtml).not.toContain('Password is required');
+        //</editor-fold>
 
-        // wrapper.find('[data-testid="sign-in"]')
-        // wrapper.find('[data-testid="sign-up"]')
+    });
+
+    test('stub login user request', async () => {
+
+
+
+        moxios.install();
+        moxios.stubRequest('/api/login', {
+            status: 200,
+            response: {
+                "status": "Error",
+                "message":"Failed to authenticate user. The given data was invalid.",
+                "data": []
+            }
+        });
+        axios.post('/api/login', {
+            email: 'test@test.com',
+            password: '123456789-not-valid'
+
+        }).then(async response => {
+            console.log('stub./api/login.response', response);
+
+            await wrapper.vm.$nextTick();
+
+            // expect(wrapper.find('[data-testid="dialog-information"]').exists()).toBeTruthy();
+
+        });
 
     });
 

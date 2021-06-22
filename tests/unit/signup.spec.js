@@ -1,6 +1,6 @@
 import {createLocalVue, RouterLinkStub, mount, shallowMount} from '@vue/test-utils'
 import SignUp from "@/views/SignUp";
-import DialogInformation from "@/components/DialogInformation";
+import DialogInformation from "@/components/DialogInformation/DialogInformation";
 import Vuetify from "vuetify";
 import store from "@/store/store";
 import moxios from 'moxios'
