@@ -1,3 +1,3 @@
 export default {
-    showDialogLoading: false,
+    displayDialogLoading: false
 }

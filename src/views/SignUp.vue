@@ -74,14 +74,15 @@
             </v-card>
           </v-flex>
           <DialogLoading
-              :isDisplayed="showDialogLoading"
+              :isDisplayed="displayDialogLoading"
               text="Creating new user"
           />
           <DialogError
               :title="dialogErrorTitle"
               :text="dialogErrorText"
-              :isDisplayed="showDialogError"
-              @close="closeDialogError"
+              :isDisplayed="displayDialogError"
+
+              @close="hideDialogError"
               data-testid="dialog-error"
           >
             <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
@@ -89,11 +90,9 @@
           <DialogInformation
               :title="dialogInformationTitle"
               :text="dialogInformationText"
-              :isDisplayed="showDialogInformation"
+              :isDisplayed="displayDialogInformation"
               @close="handleConfirmUserCreated"
-          >
-
-          </DialogInformation>
+          />
         </v-layout>
       </v-container>
     </v-main>
@@ -102,24 +101,28 @@
 
 <script>
 import {mapGetters} from 'vuex'
-import {createUserAsync} from "@/services/signupServices";
+import {signUpRequest} from "@/requests/signUpRequests";
+import {signUpData} from '@/Shared/auth/authData'
 
 import DialogLoading from "@/components/DialogLoading/DialogLoading";
 import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
-import dialogLoadingMethods from '@/components/DialogLoading/dialogLoadingMethods'
+import {showDialogLoading, hideDialogLoading} from '@/components/DialogLoading/dialogLoadingMethods'
 
 import DialogError from "@/components/DialogError/DialogError";
 import dialogErrorData from "@/components/DialogError/dialogErrorData";
-import dialogErrorMethods from '@/components/DialogError/dialogErrorMethods'
+import {hideDialogError, showDialogError} from '@/components/DialogError/dialogErrorMethods'
 
 import DialogInformation from "@/components/DialogInformation/DialogInformation";
 import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
-import dialogInformationMethods from '@/components/DialogInformation/dialogInformationMethods'
+import {showDialogInformation} from '@/components/DialogInformation/dialogInformationMethods'
 
 import ErrorListHelper from "@/components/ErrorListHelper/ErrorListHelper";
 import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
 
-import {signUpData} from '@/components/Shared/registrationData'
+import {
+  handleSignUpErrorResponse,
+  handleSignUpSuccessResponse
+} from '@/Shared/auth/authMethods'
 
 export default {
   name: "SignUp",
@@ -137,64 +140,42 @@ export default {
     DialogError
   },
   methods: {
-    ...dialogErrorMethods,
-    ...dialogInformationMethods,
-    ...dialogLoadingMethods,
+    hideDialogError,
+    showDialogError,
+
+    showDialogInformation,
+
+    showDialogLoading,
+    hideDialogLoading,
+
+    handleSignUpErrorResponse,
+    handleSignUpSuccessResponse,
 
     handleConfirmUserCreated() {
       this.closeDialogInformation();
+
       this.$router.push('/signin');
     },
-    handleCreateUserError(error) {
-      this.isDebugEnabled && console.log('handleCreateUserError.error.response', error.response);
-      this.closeDialogLoading();
-
-      if (!!error.response.data.message) {
-        this.dialogErrorTitle = error.response.data.message;
-      }
-
-      if (!!error.response.data.errors) {
-        this.dialogErrorJson = error.response.data.errors;
-      }
-
-      this.openDialogError();
-
-      return false;
-    },
-    handleCreateUserResponse(response) {
-      this.isDebugEnabled && console.log('handleCreateUserResponse.response', response);
-      this.closeDialogLoading();
-
-      if (!!response) {
-        if (!!response.data.status) {
-          this.dialogInformationTitle = response.data.status;
-        }
-        if (!!response.data.message) {
-          this.dialogInformationText = response.data.message;
-        }
-
-        this.openDialogInformation();
-      }
-    },
     submitSignUpForm() {
-      const signupFormIsValid = this.$refs.form.validate()
-      this.isDebugEnabled && console.log('signupFormIsValid', signupFormIsValid);
+      const signUpFormIsValid = this.$refs.form.validate();
+      this.isDebugEnabled && console.log('signUpFormIsValid', signUpFormIsValid);
 
-      if (signupFormIsValid) {
-        this.openDialogLoading();
-        createUserAsync(
-            this.name,
-            this.email,
-            this.password,
-            this.passwordConfirmation
-        ).catch(
-            this.handleCreateUserError
+      if (signUpFormIsValid) {
+
+        this.showDialogLoading();
+
+        signUpRequest({
+          name: this.name,
+          email: this.email,
+          password: this.password,
+          passwordConfirmation: this.passwordConfirmation
+        }).catch(
+            this.handleSignUpErrorResponse
         ).then(
-            this.handleCreateUserResponse
+            this.handleSignUpSuccessResponse
         );
 
       }
-
     },
 
   },

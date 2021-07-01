@@ -2,7 +2,7 @@
 
   <v-dialog
       :value="isDisplayed"
-      @input="closeDialogError"
+      @input="hideDialogError"
       width="500"
   >
     <v-card>
@@ -21,7 +21,7 @@
         <v-btn
             color="primary"
             text
-            @click="closeDialogError"
+            @click="hideDialogError"
         >
           {{ buttonTextClose }}
         </v-btn>
@@ -60,7 +60,7 @@ export default {
     }
   },
   methods: {
-    closeDialogError() {
+    hideDialogError() {
       this.$emit('close');
     }
   }

@@ -1,6 +1,9 @@
-import apiClient from "@/services/apiServices";
+import apiClient from "@/requests/apiClient";
 
-async function createUserAsync(name, email, password, passwordConfirmation) {
+async function signUpRequest(user) {
+
+    const {name, email, password, passwordConfirmation} = user;
+
     return apiClient
         .get('/sanctum/csrf-cookie')
         .then(() => {
@@ -14,5 +17,5 @@ async function createUserAsync(name, email, password, passwordConfirmation) {
 }
 
 export {
-    createUserAsync
+    signUpRequest
 }

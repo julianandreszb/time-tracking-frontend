@@ -1,13 +1,13 @@
-function openDialogError() {
-    if (typeof this.showDialogError !== 'undefined') {
-        this.showDialogError = true
+function showDialogError() {
+    if (typeof this.displayDialogError !== 'undefined') {
+        this.displayDialogError = true
     }
 }
 
-function closeDialogError() {
-    if (typeof this.showDialogError !== 'undefined') {
-        this.showDialogError = false;
+function hideDialogError() {
+    if (typeof this.displayDialogError !== 'undefined') {
+        this.displayDialogError = false;
     }
 }
 
-export default {openDialogError, closeDialogError}
+export {showDialogError, hideDialogError}

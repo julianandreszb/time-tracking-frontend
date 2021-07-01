@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-// import Home from '../views/Home.vue'
-// import SignUp from "@/views/SignUp";
 import SignIn from "@/views/SignIn";
 
 Vue.use(VueRouter)

@@ -1,9 +1,14 @@
-import {createLocalVue, mount, RouterLinkStub} from '@vue/test-utils'
+import {createLocalVue, mount, RouterLinkStub, shallowMount} from '@vue/test-utils'
 import Vuetify from "vuetify";
 import SignIn from "@/views/SignIn";
+import DialogLoading from "@/components/DialogLoading/DialogLoading";
 import store from "@/store/store";
 import moxios from "moxios";
 import axios from "axios";
+import DialogError from "@/components/DialogError/DialogError";
+import DialogInformation from "@/components/DialogInformation/DialogInformation";
+import ErrorListHelper from "@/components/ErrorListHelper/ErrorListHelper";
+import 'intersection-observer';
 
 describe('SignIn', () => {
 
@@ -29,6 +34,25 @@ describe('SignIn', () => {
         expect(wrapper.find('[data-testid="sign-in"]').exists()).toBeTruthy();
         expect(wrapper.find('[data-testid="sign-up"]').exists()).toBeTruthy();
         expect(wrapper.find('[data-testid="dialog-error"]').exists()).toBeTruthy();
+    });
+
+    test('dialogs and methods components exist', () => {
+
+        wrapper = shallowMount(SignIn, {
+            localeVue,
+            vuetify,
+            store,
+            stubs: {
+                RouterLink: RouterLinkStub
+            }
+        });
+
+        expect(wrapper.findComponent(DialogLoading).exists()).toBeTruthy();
+        expect(wrapper.findComponent(DialogInformation).exists()).toBeTruthy();
+        expect(wrapper.findComponent(DialogError).exists()).toBeTruthy();
+        expect(wrapper.findComponent(ErrorListHelper).exists()).toBeTruthy();
+
+        console.log('wrapper.html()', wrapper.html());
     });
 
     test('submitSignInForm method is called', async () => {

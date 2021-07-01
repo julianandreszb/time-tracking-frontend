@@ -14,7 +14,6 @@
                     v-model="valid"
                     lazy-validation
                 >
-
                   <v-text-field
                       prepend-icon="mdi-email"
                       v-model="email"
@@ -23,7 +22,6 @@
                       data-testid="email"
                       required
                   />
-
                   <v-text-field
                       prepend-icon="mdi-lock"
                       v-model="password"
@@ -37,14 +35,12 @@
                   ></v-text-field>
                 </v-form>
               </v-card-text>
-
               <v-card-actions>
-                <v-btn data-testid="sign-in"  block color="primary" @click="submitSignInForm">SIGN IN</v-btn>
+                <v-btn data-testid="sign-in" block color="primary" @click="submitSignInForm">SIGN IN</v-btn>
               </v-card-actions>
-
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <p class="my-2" >No account?</p>
+                <p class="my-2">No account?</p>
                 <v-btn
                     class="ma-1"
                     color="primary"
@@ -58,18 +54,25 @@
               </v-card-actions>
             </v-card>
           </v-flex>
-
+          <DialogLoading
+              :isDisplayed="displayDialogLoading"
+              text="Logging in"
+          />
           <DialogError
               :title="dialogErrorTitle"
               :text="dialogErrorText"
-              :isDisplayed="showDialogError"
-              @close="closeDialogError"
+              :isDisplayed="displayDialogError"
+              @close="hideDialogError"
               data-testid="dialog-error"
           >
             <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
           </DialogError>
-
-
+          <DialogInformation
+              :title="dialogInformationTitle"
+              :text="dialogInformationText"
+              :isDisplayed="displayDialogInformation"
+              @close="console.log('SignIn.DialogInformation.@close.click');"
+          />
         </v-layout>
       </v-container>
     </v-main>
@@ -77,50 +80,74 @@
 </template>
 
 <script>
-import DialogError from '@/components/DialogError/DialogError'
-import ErrorListHelper from '@/components/ErrorListHelper/ErrorListHelper'
-import {loginUserAsync} from '@/services/signinServices'
-import dialogErrorMethods from '@/components/DialogError/dialogErrorMethods'
+import {mapGetters} from 'vuex'
+import {signInRequest} from '@/requests/signInRequests'
+
+import DialogLoading from "@/components/DialogLoading/DialogLoading";
+import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
+import {hideDialogLoading, showDialogLoading} from "@/components/DialogLoading/dialogLoadingMethods";
+
+import DialogError from "@/components/DialogError/DialogError";
+import dialogErrorData from "@/components/DialogError/dialogErrorData";
+import {showDialogError, hideDialogError} from '@/components/DialogError/dialogErrorMethods';
+
+import DialogInformation from "@/components/DialogInformation/DialogInformation";
+import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
+import {showDialogInformation} from "@/components/DialogInformation/dialogInformationMethods";
+
+import ErrorListHelper from '@/components/ErrorListHelper/ErrorListHelper';
+import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
+
+import {signInData} from '@/Shared/auth/authData'
+import {
+  handleSignInErrorResponse,
+  handleSignInSuccessResponse
+} from '@/Shared/auth/authMethods'
 
 export default {
   name: 'SignIn',
-  components: {
-    DialogError,
-    ErrorListHelper
-  },
   data: () => ({
-    showPassword: false,
-    showPasswordConfirm: false,
-    valid: true,
-
-    email: '',
-    emailRules: [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
-    ],
-    password: '',
-
-    passwordRules: [
-      v => !!v || 'Password is required',
-    ],
-
-    showDialogError: false,
-
-    dialogErrorTitle: '',
-    dialogErrorText: '',
-    dialogErrorJson: {},
+    ...dialogErrorData,
+    ...dialogInformationData,
+    ...dialogLoadingData,
+    ...errorListHelperData,
+    ...signInData,
   }),
+  components: {
+    ErrorListHelper,
+    DialogInformation,
+    DialogLoading,
+    DialogError,
+  },
   methods: {
-   ...dialogErrorMethods,
+    showDialogError,
+    hideDialogError,
+
+    showDialogInformation,
+
+    hideDialogLoading,
+    showDialogLoading,
+
+    handleSignInErrorResponse,
+    handleSignInSuccessResponse,
 
     submitSignInForm() {
+      const signInFormIsValid = this.$refs.form.validate();
+      this.isDebugEnabled && console.log('signInFormIsValid', signInFormIsValid);
 
-      const signupFormIsValid = this.$refs.form.validate()
-      this.isDebugEnabled && console.log('signupFormIsValid', signupFormIsValid);
+      if (signInFormIsValid) {
 
-      loginUserAsync(this.email, this.password).then(response => {
-        this.isDebugEnabled && console.log('loginUserAsync.response', response);
-      });
+        this.showDialogLoading();
+
+        signInRequest({
+          email: this.email,
+          password: this.password
+        }).catch(
+            this.handleSignInErrorResponse
+        ).then(
+            this.handleSignInSuccessResponse
+        )
+      }
 
 
       // apiClient.get('/sanctum/csrf-cookie')
@@ -162,7 +189,12 @@ export default {
       //       });
       //
       //     });
-    }
+    },
   },
+  computed: {
+    ...mapGetters("appModule", [
+      "isDebugEnabled"
+    ])
+  }
 }
 </script>

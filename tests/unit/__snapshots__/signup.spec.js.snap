@@ -100,7 +100,7 @@ exports[`SignUp snapshot 1`] = `
             <div role="dialog" class="v-dialog__container">
               <!---->
             </div>
-            <div role="dialog" class="v-dialog__container">
+            <div role="dialog" class="v-dialog__container" data-testid="dialog-error">
               <!---->
             </div>
             <div role="dialog" class="v-dialog__container">
