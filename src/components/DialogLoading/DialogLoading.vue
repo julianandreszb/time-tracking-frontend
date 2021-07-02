@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-      v-model="isDisplayed"
+      v-model="isOpen"
       persistent
       width="300"
   >
@@ -24,7 +24,7 @@
 export default {
   name: "DialogLoading",
   props: {
-    "isDisplayed": {
+    "isOpen": {
       required: true,
       type: Boolean
     },

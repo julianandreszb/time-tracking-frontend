@@ -14,7 +14,9 @@ describe('SignUp', () => {
     let wrapper;
 
     beforeEach(() => {
-        vuetify = new Vuetify()
+
+        vuetify = new Vuetify();
+
         wrapper = mount(SignUp, {
             localVue,
             vuetify,
@@ -46,6 +48,7 @@ describe('SignUp', () => {
         });
 
         await wrapper.find('#v-btn-signup').trigger('click');
+
         const signUpFormHtml = signUpFormContent();
 
         expect(signUpFormHtml).toContain('Name is required');
@@ -62,7 +65,7 @@ describe('SignUp', () => {
         const wrapperPassword = wrapper.find('#v-text-field-password');
         const wrapperPasswordConfirm = wrapper.find('#v-text-field-confirm-password');
 
-        wrapperName.element.value = 'Neil DeGrasse Tyson';
+        wrapperName.element.value = 'Neil De Tyson';
         wrapperEmail.element.value = 'neil_degrasse_tyson@test.com';
         wrapperPassword.element.value = 'ABC123456789';
         wrapperPasswordConfirm.element.value = 'ABC123456789';
@@ -76,12 +79,13 @@ describe('SignUp', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.name).toBe('Neil DeGrasse Tyson');
+        expect(wrapper.vm.name).toBe('Neil De Tyson');
         expect(wrapper.vm.email).toBe('neil_degrasse_tyson@test.com');
         expect(wrapper.vm.password).toBe('ABC123456789');
         expect(wrapper.vm.passwordConfirmation).toBe('ABC123456789');
 
         const signUpFormHtml = signUpFormContent();
+
         expect(signUpFormHtml).not.toContain('Name is required');
         expect(signUpFormHtml).not.toContain('E-mail is required');
         expect(signUpFormHtml).not.toContain('Password is required');
@@ -119,9 +123,9 @@ describe('SignUp', () => {
         });
 
         axios.post('/api/register').then(async response => {
-            wrapper.vm.DialogInformationTitle = response.data.status;
-            wrapper.vm.DialogInformationText = response.data.message;
-            wrapper.vm.showDialogInformation = true;
+            wrapper.vm.dialogInformationTitle = response.data.status;
+            wrapper.vm.dialogInformationText = response.data.message;
+            //wrapper.vm.openDialogInformation = true;
 
             await wrapper.vm.$nextTick();
 

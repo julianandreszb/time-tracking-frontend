@@ -55,14 +55,14 @@
             </v-card>
           </v-flex>
           <DialogLoading
-              :isDisplayed="displayDialogLoading"
+              :isOpen="dialogLoadingIsOpen"
               text="Logging in"
           />
           <DialogError
               :title="dialogErrorTitle"
               :text="dialogErrorText"
-              :isDisplayed="displayDialogError"
-              @close="hideDialogError"
+              :isOpen="dialogErrorIsOpen"
+              @close="closeDialogError"
               data-testid="dialog-error"
           >
             <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
@@ -70,8 +70,8 @@
           <DialogInformation
               :title="dialogInformationTitle"
               :text="dialogInformationText"
-              :isDisplayed="displayDialogInformation"
-              @close="console.log('SignIn.DialogInformation.@close.click');"
+              :isOpen="dialogInformationIsOpen"
+              @close="handleConfirmSignInInformation"
           />
         </v-layout>
       </v-container>
@@ -85,23 +85,23 @@ import {signInRequest} from '@/requests/signInRequests'
 
 import DialogLoading from "@/components/DialogLoading/DialogLoading";
 import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
-import {hideDialogLoading, showDialogLoading} from "@/components/DialogLoading/dialogLoadingMethods";
+import {closeDialogLoading, openDialogLoading} from "@/components/DialogLoading/dialogLoadingMethods";
 
 import DialogError from "@/components/DialogError/DialogError";
 import dialogErrorData from "@/components/DialogError/dialogErrorData";
-import {showDialogError, hideDialogError} from '@/components/DialogError/dialogErrorMethods';
+import {openDialogError, closeDialogError} from '@/components/DialogError/dialogErrorMethods';
 
 import DialogInformation from "@/components/DialogInformation/DialogInformation";
 import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
-import {showDialogInformation} from "@/components/DialogInformation/dialogInformationMethods";
+import {closeDialogInformation, openDialogInformation} from "@/components/DialogInformation/dialogInformationMethods";
 
 import ErrorListHelper from '@/components/ErrorListHelper/ErrorListHelper';
 import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
 
 import {signInData} from '@/Shared/auth/authData'
 import {
-  handleSignInErrorResponse,
-  handleSignInSuccessResponse
+  handleUserAuthErrorResponse,
+  handleUserAuthSuccessResponse
 } from '@/Shared/auth/authMethods'
 
 export default {
@@ -120,16 +120,21 @@ export default {
     DialogError,
   },
   methods: {
-    showDialogError,
-    hideDialogError,
+    openDialogError,
+    closeDialogError,
 
-    showDialogInformation,
+    openDialogInformation,
+    closeDialogInformation,
 
-    hideDialogLoading,
-    showDialogLoading,
+    closeDialogLoading,
+    openDialogLoading,
 
-    handleSignInErrorResponse,
-    handleSignInSuccessResponse,
+    handleUserAuthErrorResponse,
+    handleUserAuthSuccessResponse,
+
+    handleConfirmSignInInformation() {
+      this.closeDialogInformation();
+    },
 
     submitSignInForm() {
       const signInFormIsValid = this.$refs.form.validate();
@@ -137,16 +142,20 @@ export default {
 
       if (signInFormIsValid) {
 
-        this.showDialogLoading();
+        this.openDialogLoading();
 
         signInRequest({
           email: this.email,
           password: this.password
+        }).then(response => {
+          // TODO: This function is not required for SignIn component.
+          // TODO: Check if there is way to change the names to the functions for signIn and signUp respectively
+          // TODO: (Function inside another function let that = this)
+          //this.handleUserAuthSuccessResponse
+          this.closeDialogLoading();
         }).catch(
-            this.handleSignInErrorResponse
-        ).then(
-            this.handleSignInSuccessResponse
-        )
+            this.handleUserAuthErrorResponse
+        );
       }
 
 

@@ -1,7 +1,7 @@
 <template>
 
   <v-dialog
-      :value="isDisplayed"
+      :value="isOpen"
       @input="closeDialogInformation"
       width="500"
   >
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import {BUTTON_TEXT_FINISH} from "@/Utils/constants";
+import {BUTTON_TEXT_CLOSE} from "@/Utils/constants";
 
 export default {
   name: "DialogInformation",
@@ -41,7 +41,7 @@ export default {
   },
 
   props: {
-    "isDisplayed": {
+    "isOpen": {
       required: true,
       type: Boolean
     },
@@ -56,7 +56,7 @@ export default {
     "buttonTextFinish": {
       required: false,
       type: String,
-      default: BUTTON_TEXT_FINISH
+      default: BUTTON_TEXT_CLOSE
     }
   },
   methods: {

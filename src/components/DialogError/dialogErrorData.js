@@ -1,5 +1,5 @@
 export default {
-    displayDialogError: false,
+    dialogErrorIsOpen: false,
     dialogErrorTitle: '',
     dialogErrorText: '',
 }

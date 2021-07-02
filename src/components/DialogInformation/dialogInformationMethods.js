@@ -1,13 +1,13 @@
-function showDialogInformation() {
-    if (typeof this.displayDialogInformation !== 'undefined') {
-        this.displayDialogInformation = true
+function openDialogInformation() {
+    if (typeof this.dialogInformationIsOpen !== 'undefined') {
+        this.dialogInformationIsOpen = true
     }
 }
 
-function hideDialogInformation() {
-    if (typeof this.displayDialogInformation !== 'undefined') {
-        this.displayDialogInformation = false;
+function closeDialogInformation() {
+    if (typeof this.dialogInformationIsOpen !== 'undefined') {
+        this.dialogInformationIsOpen = false;
     }
 }
 
-export {showDialogInformation, hideDialogInformation}
+export {openDialogInformation, closeDialogInformation}

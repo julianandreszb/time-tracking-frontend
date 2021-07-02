@@ -1,5 +1,5 @@
 export default {
-    displayDialogInformation: false,
+    dialogInformationIsOpen: false,
     dialogInformationTitle: '',
     dialogInformationText: '',
 }

@@ -74,15 +74,14 @@
             </v-card>
           </v-flex>
           <DialogLoading
-              :isDisplayed="displayDialogLoading"
+              :isOpen="dialogLoadingIsOpen"
               text="Creating new user"
           />
           <DialogError
               :title="dialogErrorTitle"
               :text="dialogErrorText"
-              :isDisplayed="displayDialogError"
-
-              @close="hideDialogError"
+              :isOpen="dialogErrorIsOpen"
+              @close="closeDialogError"
               data-testid="dialog-error"
           >
             <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
@@ -90,7 +89,7 @@
           <DialogInformation
               :title="dialogInformationTitle"
               :text="dialogInformationText"
-              :isDisplayed="displayDialogInformation"
+              :isOpen="dialogInformationIsOpen"
               @close="handleConfirmUserCreated"
           />
         </v-layout>
@@ -106,32 +105,32 @@ import {signUpData} from '@/Shared/auth/authData'
 
 import DialogLoading from "@/components/DialogLoading/DialogLoading";
 import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
-import {showDialogLoading, hideDialogLoading} from '@/components/DialogLoading/dialogLoadingMethods'
+import {openDialogLoading, closeDialogLoading} from '@/components/DialogLoading/dialogLoadingMethods'
 
 import DialogError from "@/components/DialogError/DialogError";
 import dialogErrorData from "@/components/DialogError/dialogErrorData";
-import {hideDialogError, showDialogError} from '@/components/DialogError/dialogErrorMethods'
+import {closeDialogError, openDialogError} from '@/components/DialogError/dialogErrorMethods'
 
 import DialogInformation from "@/components/DialogInformation/DialogInformation";
 import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
-import {showDialogInformation} from '@/components/DialogInformation/dialogInformationMethods'
+import {closeDialogInformation, openDialogInformation} from '@/components/DialogInformation/dialogInformationMethods'
 
 import ErrorListHelper from "@/components/ErrorListHelper/ErrorListHelper";
 import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
 
 import {
-  handleSignUpErrorResponse,
-  handleSignUpSuccessResponse
+  handleUserAuthErrorResponse,
+  handleUserAuthSuccessResponse
 } from '@/Shared/auth/authMethods'
 
 export default {
   name: "SignUp",
   data: () => ({
+    ...signUpData,
     ...dialogErrorData,
     ...dialogInformationData,
     ...dialogLoadingData,
-    ...errorListHelperData,
-    ...signUpData
+    ...errorListHelperData
   }),
   components: {
     ErrorListHelper,
@@ -140,16 +139,17 @@ export default {
     DialogError
   },
   methods: {
-    hideDialogError,
-    showDialogError,
+    closeDialogError,
+    openDialogError,
 
-    showDialogInformation,
+    openDialogInformation,
+    closeDialogInformation,
 
-    showDialogLoading,
-    hideDialogLoading,
+    openDialogLoading,
+    closeDialogLoading,
 
-    handleSignUpErrorResponse,
-    handleSignUpSuccessResponse,
+    handleUserAuthErrorResponse,
+    handleUserAuthSuccessResponse,
 
     handleConfirmUserCreated() {
       this.closeDialogInformation();
@@ -162,17 +162,17 @@ export default {
 
       if (signUpFormIsValid) {
 
-        this.showDialogLoading();
+        this.openDialogLoading();
 
         signUpRequest({
           name: this.name,
           email: this.email,
           password: this.password,
           passwordConfirmation: this.passwordConfirmation
-        }).catch(
-            this.handleSignUpErrorResponse
-        ).then(
-            this.handleSignUpSuccessResponse
+        }).then(
+            this.handleUserAuthSuccessResponse
+        ).catch(
+            this.handleUserAuthErrorResponse
         );
 
       }

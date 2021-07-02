@@ -1,8 +1,8 @@
 <template>
 
   <v-dialog
-      :value="isDisplayed"
-      @input="hideDialogError"
+      :value="isOpen"
+      @input="closeDialogError"
       width="500"
   >
     <v-card>
@@ -21,7 +21,7 @@
         <v-btn
             color="primary"
             text
-            @click="hideDialogError"
+            @click="closeDialogError"
         >
           {{ buttonTextClose }}
         </v-btn>
@@ -41,7 +41,7 @@ export default {
   },
 
   props: {
-    "isDisplayed": {
+    "isOpen": {
       required: true,
       type: Boolean
     },
@@ -60,7 +60,7 @@ export default {
     }
   },
   methods: {
-    hideDialogError() {
+    closeDialogError() {
       this.$emit('close');
     }
   }

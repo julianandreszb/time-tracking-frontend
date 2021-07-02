@@ -17,7 +17,9 @@ describe('SignIn', () => {
     let wrapper;
 
     beforeEach(() => {
+
         vuetify = new Vuetify();
+
         wrapper = mount(SignIn, {
             localeVue,
             vuetify,
@@ -52,7 +54,6 @@ describe('SignIn', () => {
         expect(wrapper.findComponent(DialogError).exists()).toBeTruthy();
         expect(wrapper.findComponent(ErrorListHelper).exists()).toBeTruthy();
 
-        console.log('wrapper.html()', wrapper.html());
     });
 
     test('submitSignInForm method is called', async () => {
@@ -85,21 +86,27 @@ describe('SignIn', () => {
         wrapperEmail.element.value = 'test';
         wrapperEmail.trigger('input');
         wrapperSignInButton.trigger('click');
+
         await wrapper.vm.$nextTick();
+
         signInFormContentHtml = signInFormContent();
         expect(signInFormContentHtml).toContain('E-mail must be valid');
 
         wrapperEmail.element.value = 'test@test';
         wrapperEmail.trigger('input');
         wrapperSignInButton.trigger('click');
+
         await wrapper.vm.$nextTick();
+
         signInFormContentHtml = signInFormContent();
         expect(signInFormContentHtml).toContain('E-mail must be valid');
 
         wrapperEmail.element.value = 'test@test.com';
         wrapperEmail.trigger('input');
         wrapperSignInButton.trigger('click');
+
         await wrapper.vm.$nextTick();
+
         signInFormContentHtml = signInFormContent();
         expect(signInFormContentHtml).not.toContain('E-mail must be valid');
         //</editor-fold>
@@ -109,7 +116,9 @@ describe('SignIn', () => {
         wrapperPassword.element.value = '';
         wrapperPassword.trigger('input');
         wrapperSignInButton.trigger('click');
+
         await wrapper.vm.$nextTick();
+
         signInFormContentHtml = signInFormContent();
         expect(signInFormContentHtml).toContain('Password is required');
         //</editor-fold>
@@ -118,7 +127,9 @@ describe('SignIn', () => {
         wrapperPassword.element.value = '123456789';
         wrapperPassword.trigger('input');
         wrapperSignInButton.trigger('click');
+
         await wrapper.vm.$nextTick();
+
         signInFormContentHtml = signInFormContent();
         expect(signInFormContentHtml).not.toContain('Password is required');
         //</editor-fold>
@@ -126,9 +137,6 @@ describe('SignIn', () => {
     });
 
     test('stub login user request', async () => {
-
-
-
         moxios.install();
         moxios.stubRequest('/api/login', {
             status: 200,
@@ -138,6 +146,7 @@ describe('SignIn', () => {
                 "data": []
             }
         });
+
         axios.post('/api/login', {
             email: 'test@test.com',
             password: '123456789-not-valid'

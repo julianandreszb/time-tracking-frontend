@@ -1,13 +1,13 @@
-function showDialogLoading() {
-    if (typeof this.displayDialogLoading !== 'undefined') {
-        this.displayDialogLoading = true
+function openDialogLoading() {
+    if (typeof this.dialogLoadingIsOpen !== 'undefined') {
+        this.dialogLoadingIsOpen = true
     }
 }
 
-function hideDialogLoading() {
-    if (typeof this.displayDialogLoading !== 'undefined') {
-        this.displayDialogLoading = false;
+function closeDialogLoading() {
+    if (typeof this.dialogLoadingIsOpen !== 'undefined') {
+        this.dialogLoadingIsOpen = false;
     }
 }
 
-export {showDialogLoading, hideDialogLoading}
+export {openDialogLoading, closeDialogLoading}
