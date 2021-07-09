@@ -96,7 +96,6 @@ describe('SignUp', () => {
 
     test('create new user', async () => {
 
-        moxios.install();
         vuetify = new Vuetify()
         wrapper = shallowMount(SignUp, {
             localVue,
@@ -107,31 +106,44 @@ describe('SignUp', () => {
             }
         });
 
+        moxios.install();
         moxios.stubRequest('/api/register', {
             status: 200,
             response: {
                 "status": "Success",
-                "message":"User created successfully",
-                "data": {
-                    "name":"Test Test",
-                    "email":"test@test.com",
-                    "updated_at":"2021-06-16T04:27:58.000000Z",
-                    "created_at":"2021-06-16T04:27:58.000000Z",
-                    "id":1
-                }
+                "message": "User created successfully",
+                "data":
+                    {
+                        "name": "Test Test",
+                        "email": "test@test.com",
+                        "updated_at": "2021-07-02T09:56:23.000000Z",
+                        "created_at": "2021-07-02T09:56:23.000000Z",
+                        "id": 2
+                    }
             }
+
+
         });
 
         axios.post('/api/register').then(async response => {
+
+            console.log(response);
+
             wrapper.vm.dialogInformationTitle = response.data.status;
             wrapper.vm.dialogInformationText = response.data.message;
             //wrapper.vm.openDialogInformation = true;
 
             await wrapper.vm.$nextTick();
 
+            console.log(wrapper.findComponent(DialogInformation).html())
+
             expect(wrapper.findComponent(DialogInformation).html()).toContain(response.data.status); // Success
             expect(wrapper.findComponent(DialogInformation).html()).toContain(response.data.message); // User created successfully
+        }).catch(error => {
+            console.log(error);
         });
+
+        await wrapper.vm.$nextTick();
 
         moxios.uninstall();
     });

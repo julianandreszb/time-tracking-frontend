@@ -137,6 +137,7 @@ describe('SignIn', () => {
     });
 
     test('stub login user request', async () => {
+
         moxios.install();
         moxios.stubRequest('/api/login', {
             status: 200,
@@ -150,7 +151,6 @@ describe('SignIn', () => {
         axios.post('/api/login', {
             email: 'test@test.com',
             password: '123456789-not-valid'
-
         }).then(async response => {
             console.log('stub./api/login.response', response);
 
@@ -159,6 +159,10 @@ describe('SignIn', () => {
             // expect(wrapper.find('[data-testid="dialog-information"]').exists()).toBeTruthy();
 
         });
+
+        await wrapper.vm.$nextTick();
+
+        moxios.uninstall();
 
     });
 

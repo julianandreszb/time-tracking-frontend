@@ -99,21 +99,33 @@
 </template>
 
 <script>
+import {logMessage} from "@/Shared/log/debugFunctions";
 import {mapGetters} from 'vuex'
-import {signUpRequest} from "@/requests/signUpRequests";
+import {handleSignUpRequest, signUpRequest} from "@/requests/signUpRequests";
 import {signUpData} from '@/Shared/auth/authData'
 
 import DialogLoading from "@/components/DialogLoading/DialogLoading";
 import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
-import {openDialogLoading, closeDialogLoading} from '@/components/DialogLoading/dialogLoadingMethods'
+import {
+  openDialogLoading,
+  closeDialogLoading
+} from '@/components/DialogLoading/dialogLoadingMethods'
 
 import DialogError from "@/components/DialogError/DialogError";
 import dialogErrorData from "@/components/DialogError/dialogErrorData";
-import {closeDialogError, openDialogError} from '@/components/DialogError/dialogErrorMethods'
+import {
+  closeDialogError,
+  openDialogError,
+  initializeDialogErrorData
+} from '@/components/DialogError/dialogErrorMethods'
 
 import DialogInformation from "@/components/DialogInformation/DialogInformation";
 import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
-import {closeDialogInformation, openDialogInformation} from '@/components/DialogInformation/dialogInformationMethods'
+import {
+  closeDialogInformation,
+  openDialogInformation,
+  initializeDialogInformationData
+} from '@/components/DialogInformation/dialogInformationMethods'
 
 import ErrorListHelper from "@/components/ErrorListHelper/ErrorListHelper";
 import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
@@ -139,41 +151,42 @@ export default {
     DialogError
   },
   methods: {
+    logMessage,
+
     closeDialogError,
     openDialogError,
+    initializeDialogErrorData,
 
-    openDialogInformation,
     closeDialogInformation,
+    openDialogInformation,
+    initializeDialogInformationData,
 
-    openDialogLoading,
     closeDialogLoading,
+    openDialogLoading,
 
     handleUserAuthErrorResponse,
     handleUserAuthSuccessResponse,
-
     handleConfirmUserCreated() {
       this.closeDialogInformation();
 
       this.$router.push('/signin');
     },
+
+    signUpFormIsValid() {
+      return this.$refs.form.validate();
+    },
+    signUpRequest,
+    handleSignUpRequest,
     submitSignUpForm() {
-      const signUpFormIsValid = this.$refs.form.validate();
-      this.isDebugEnabled && console.log('signUpFormIsValid', signUpFormIsValid);
 
-      if (signUpFormIsValid) {
+      if (this.signUpFormIsValid()) {
 
-        this.openDialogLoading();
-
-        signUpRequest({
+        this.handleSignUpRequest({
           name: this.name,
           email: this.email,
           password: this.password,
           passwordConfirmation: this.passwordConfirmation
-        }).then(
-            this.handleUserAuthSuccessResponse
-        ).catch(
-            this.handleUserAuthErrorResponse
-        );
+        });
 
       }
     },

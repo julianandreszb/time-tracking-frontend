@@ -80,29 +80,39 @@
 </template>
 
 <script>
+import {logMessage} from "@/Shared/log/debugFunctions";
+
 import {mapGetters} from 'vuex'
-import {signInRequest} from '@/requests/signInRequests'
+import {handleSignInRequest, signInRequest} from '@/requests/signInRequests'
 
 import DialogLoading from "@/components/DialogLoading/DialogLoading";
 import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
-import {closeDialogLoading, openDialogLoading} from "@/components/DialogLoading/dialogLoadingMethods";
+import {
+  closeDialogLoading,
+  openDialogLoading
+} from "@/components/DialogLoading/dialogLoadingMethods";
 
 import DialogError from "@/components/DialogError/DialogError";
 import dialogErrorData from "@/components/DialogError/dialogErrorData";
-import {openDialogError, closeDialogError} from '@/components/DialogError/dialogErrorMethods';
+import {
+  openDialogError,
+  closeDialogError,
+  initializeDialogErrorData
+} from '@/components/DialogError/dialogErrorMethods';
 
 import DialogInformation from "@/components/DialogInformation/DialogInformation";
 import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
-import {closeDialogInformation, openDialogInformation} from "@/components/DialogInformation/dialogInformationMethods";
+import {
+  closeDialogInformation,
+  openDialogInformation,
+  initializeDialogInformationData
+} from "@/components/DialogInformation/dialogInformationMethods";
 
 import ErrorListHelper from '@/components/ErrorListHelper/ErrorListHelper';
 import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
 
 import {signInData} from '@/Shared/auth/authData'
-import {
-  handleUserAuthErrorResponse,
-  handleUserAuthSuccessResponse
-} from '@/Shared/auth/authMethods'
+import {handleUserAuthErrorResponse} from '@/Shared/auth/authMethods'
 
 export default {
   name: 'SignIn',
@@ -120,42 +130,39 @@ export default {
     DialogError,
   },
   methods: {
-    openDialogError,
-    closeDialogError,
+    logMessage,
 
-    openDialogInformation,
+    closeDialogError,
+    openDialogError,
+    initializeDialogErrorData,
+
     closeDialogInformation,
+    openDialogInformation,
+    initializeDialogInformationData,
 
     closeDialogLoading,
     openDialogLoading,
 
-    handleUserAuthErrorResponse,
-    handleUserAuthSuccessResponse,
 
+    handleUserAuthErrorResponse,
+    handleSignInRequest,
     handleConfirmSignInInformation() {
       this.closeDialogInformation();
     },
 
+    signInFormIsValid() {
+      return this.$refs.form.validate();
+    },
+    signInRequest,
     submitSignInForm() {
-      const signInFormIsValid = this.$refs.form.validate();
-      this.isDebugEnabled && console.log('signInFormIsValid', signInFormIsValid);
 
-      if (signInFormIsValid) {
+      if (this.signInFormIsValid()) {
 
-        this.openDialogLoading();
-
-        signInRequest({
+        this.handleSignInRequest({
           email: this.email,
           password: this.password
-        }).then(response => {
-          // TODO: This function is not required for SignIn component.
-          // TODO: Check if there is way to change the names to the functions for signIn and signUp respectively
-          // TODO: (Function inside another function let that = this)
-          //this.handleUserAuthSuccessResponse
-          this.closeDialogLoading();
-        }).catch(
-            this.handleUserAuthErrorResponse
-        );
+        });
+
       }
 
 

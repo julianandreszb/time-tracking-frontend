@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import {BUTTON_TEXT_CLOSE} from "@/Utils/constants";
+import {BUTTON_TEXT_CLOSE} from "@/Shared/constants";
 
 export default {
   name: "DialogInformation",
