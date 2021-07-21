@@ -1,11 +1,17 @@
 const state = {
-    isDebugEnabled: true
+    isDebugEnabled: true,
+    isCsrfCookieSettled: false,
 };
 
-const mutations = {}
+const mutations = {
+    setCsrfCookieSettled(state, payload) {
+        state.isCsrfCookieSettled = payload;
+    },
+}
 
 const getters = {
-    isDebugEnabled: state => state.isDebugEnabled
+    isDebugEnabled: state => state.isDebugEnabled,
+    isCsrfCookieSettled: state => state.isCsrfCookieSettled,
 }
 
 const actions = {}

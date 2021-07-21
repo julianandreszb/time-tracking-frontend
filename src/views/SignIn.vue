@@ -16,7 +16,7 @@
                 >
                   <v-text-field
                       prepend-icon="mdi-email"
-                      v-model="email"
+                      v-model="user.email"
                       :rules="emailRules"
                       label="E-mail"
                       data-testid="email"
@@ -24,7 +24,7 @@
                   />
                   <v-text-field
                       prepend-icon="mdi-lock"
-                      v-model="password"
+                      v-model="user.password"
                       :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                       :rules="passwordRules"
                       :type="showPassword ? 'text' : 'password'"
@@ -55,23 +55,24 @@
             </v-card>
           </v-flex>
           <DialogLoading
-              :isOpen="dialogLoadingIsOpen"
-              text="Logging in"
+              :isOpen="dialogLoadingInstance.isOpen"
+              :text="dialogLoadingInstance.text"
+              :title="dialogLoadingInstance.title"
           />
           <DialogError
-              :title="dialogErrorTitle"
-              :text="dialogErrorText"
-              :isOpen="dialogErrorIsOpen"
-              @close="closeDialogError"
+              :isOpen="dialogErrorInstance.isOpen"
+              :text="dialogErrorInstance.text"
+              :title="dialogErrorInstance.title"
+              @close="dialogErrorInstance.close()"
               data-testid="dialog-error"
           >
-            <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
+            <ErrorListHelper v-if="helperErrorInstance.errorMap" :errorMap="helperErrorInstance.errorMap"/>
           </DialogError>
           <DialogInformation
-              :title="dialogInformationTitle"
-              :text="dialogInformationText"
-              :isOpen="dialogInformationIsOpen"
-              @close="handleConfirmSignInInformation"
+              :isOpen="dialogInformationInstance.isOpen"
+              :text="dialogInformationInstance.text"
+              :title="dialogInformationInstance.title"
+              @close="dialogInformationInstance.close()"
           />
         </v-layout>
       </v-container>
@@ -80,49 +81,67 @@
 </template>
 
 <script>
-import {logMessage} from "@/Shared/log/debugFunctions";
-
-import {mapGetters} from 'vuex'
-import {handleSignInRequest, signInRequest} from '@/requests/signInRequests'
+import {mapGetters, mapMutations} from 'vuex'
 
 import DialogLoading from "@/components/DialogLoading/DialogLoading";
-import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
-import {
-  closeDialogLoading,
-  openDialogLoading
-} from "@/components/DialogLoading/dialogLoadingMethods";
-
 import DialogError from "@/components/DialogError/DialogError";
-import dialogErrorData from "@/components/DialogError/dialogErrorData";
-import {
-  openDialogError,
-  closeDialogError,
-  initializeDialogErrorData
-} from '@/components/DialogError/dialogErrorMethods';
-
 import DialogInformation from "@/components/DialogInformation/DialogInformation";
-import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
-import {
-  closeDialogInformation,
-  openDialogInformation,
-  initializeDialogInformationData
-} from "@/components/DialogInformation/dialogInformationMethods";
-
 import ErrorListHelper from '@/components/ErrorListHelper/ErrorListHelper';
-import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
+
+import DialogLoadingClass from "@/classes/Dialog/DialogLoading"
+import DialogErrorClass from "@/classes/Dialog/DialogError"
+import DialogInformationClass from "@/classes/Dialog/DialogInformation"
+import HelperErrorClass from "@/classes/Helper/HelperError"
+import AuthHandlerClass from "@/classes/SignInHandler";
+import UserClass from "@/classes/User";
+import ErrorSignInHandlerClass from "@/classes/ErrorSignInHandler";
+import CsrfAuthClass from "@/classes/CsrfAuth"
 
 import {signInData} from '@/Shared/auth/authData'
-import {handleUserAuthErrorResponse} from '@/Shared/auth/authMethods'
+import {
+  DIALOG_ERROR_REQUEST_TITLE,
+  DIALOG_ERROR_RESPONSE_TITLE,
+  DIALOG_LOADING_TEXT,
+  DIALOG_LOADING_TITLE
+} from "@/Shared/constants";
+
 
 export default {
   name: 'SignIn',
   data: () => ({
-    ...dialogErrorData,
-    ...dialogInformationData,
-    ...dialogLoadingData,
-    ...errorListHelperData,
     ...signInData,
+
+    dialogLoadingInstance: new DialogLoadingClass({
+      "title": DIALOG_LOADING_TITLE,
+      "text": DIALOG_LOADING_TEXT,
+      "isOpen": false
+    }),
+    dialogErrorInstance: new DialogErrorClass({
+      "title": "",
+      "text": "",
+      "isOpen": false
+    }),
+    dialogInformationInstance: new DialogInformationClass({
+      "title": "",
+      "text": "",
+      "isOpen": false
+    }),
+    helperErrorInstance: new HelperErrorClass({}),
+    authHandlerInstance: new AuthHandlerClass(),
+    errorSignInHandlerInstance: new ErrorSignInHandlerClass(),
+    user: new UserClass({
+      "email": "",
+      "password": ""
+    }),
+    csrfAuthClass: new CsrfAuthClass()
+
   }),
+  computed: {
+    ...mapGetters("appModule", [
+      "isDebugEnabled",
+      "isCsrfCookieSettled",
+    ]),
+  },
   components: {
     ErrorListHelper,
     DialogInformation,
@@ -130,87 +149,64 @@ export default {
     DialogError,
   },
   methods: {
-    logMessage,
+    ...mapMutations("appModule", [
+      "setCsrfCookieSettled",
+    ]),
 
-    closeDialogError,
-    openDialogError,
-    initializeDialogErrorData,
+    handleSignInRequestError(error) {
 
-    closeDialogInformation,
-    openDialogInformation,
-    initializeDialogInformationData,
+      if (error.response) {
 
-    closeDialogLoading,
-    openDialogLoading,
+        this.helperErrorInstance.setErrorMap(error.errors);
 
+        this.dialogErrorInstance.setTitle(DIALOG_ERROR_RESPONSE_TITLE);
+        this.dialogErrorInstance.setText(error.response.data.message);
+        this.dialogErrorInstance.open();
 
-    handleUserAuthErrorResponse,
-    handleSignInRequest,
-    handleConfirmSignInInformation() {
-      this.closeDialogInformation();
+        this.errorSignInHandlerInstance.handleUserAuthErrorResponse(error);
+
+      } else if (error.request) {
+
+        this.helperErrorInstance.setErrorMap(undefined);
+
+        this.dialogErrorInstance.setTitle(DIALOG_ERROR_REQUEST_TITLE);
+        this.dialogErrorInstance.setText(error.message);
+        this.dialogErrorInstance.open();
+
+        this.errorSignInHandlerInstance.handleRequestError(error);
+
+      } else {
+        this.errorSignInHandlerInstance.handleSettingUpError(error);
+      }
     },
-
     signInFormIsValid() {
       return this.$refs.form.validate();
     },
-    signInRequest,
-    submitSignInForm() {
 
-      if (this.signInFormIsValid()) {
+    async submitSignInForm() {
 
-        this.handleSignInRequest({
-          email: this.email,
-          password: this.password
-        });
-
+      if (!this.signInFormIsValid()) {
+        return;
       }
 
+      try {
 
-      // apiClient.get('/sanctum/csrf-cookie')
-      //     .then(response => {
-      //
-      //       console.log('/sanctum/csrf-cookie.response', response);
-      //
-      //       // apiClient.post('/registerNewUser', {
-      //       //   name: this.name,
-      //       //   email: this.email,
-      //       //   password: this.password,
-      //       //   password_confirmation: this.passwordConfirmation,
-      //       // }).then(response => {
-      //       //   console.log('/registerNewUser.response', response);
-      //       // });
-      //
-      //       // apiClient.post('/login', {
-      //       //   // name: this.name,
-      //       //   email: this.email,
-      //       //   password: this.password,
-      //       //   // password_confirmation: this.passwordConfirmation,
-      //       // }).then(response => {
-      //       //   console.log('/login.response', response);
-      //       // });
-      //
-      //       // apiClient.post('/api/test-csrf-cookie').then(response => {
-      //       //   console.log('/test-csrf-cookie.response', response);
-      //       // });
-      //
-      //       apiClient.post('/login', {
-      //         'email': this.email,
-      //         'password': this.password
-      //       }).then(response => {
-      //         console.log('/login.response', response);
-      //
-      //         apiClient.post('/api/test-csrf-cookie').then(response => {
-      //           console.log('/test-csrf-cookie.response', response);
-      //         });
-      //       });
-      //
-      //     });
+        this.dialogLoadingInstance.open();
+
+        if (!this.isCsrfCookieSettled) {
+          await this.csrfAuthClass.initializeCsrfCookie();
+          this.setCsrfCookieSettled(true);
+        }
+
+        const signInResponse = await this.authHandlerInstance.signInRequest(this.user);
+
+      } catch (error) {
+        this.handleSignInRequestError(error);
+      } finally {
+        this.dialogLoadingInstance.close();
+      }
+
     },
-  },
-  computed: {
-    ...mapGetters("appModule", [
-      "isDebugEnabled"
-    ])
   }
 }
 </script>

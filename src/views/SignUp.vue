@@ -17,7 +17,7 @@
                   <v-text-field
                       prepend-icon="mdi-account"
                       id="v-text-field-name"
-                      v-model="name"
+                      v-model="user.name"
                       :counter="20"
                       :rules="nameRules"
                       label="Name"
@@ -26,7 +26,7 @@
                   <v-text-field
                       prepend-icon="mdi-email"
                       id="v-text-field-email"
-                      v-model="email"
+                      v-model="user.email"
                       :rules="emailRules"
                       label="E-mail"
                       required
@@ -34,7 +34,7 @@
                   <v-text-field
                       prepend-icon="mdi-lock"
                       id="v-text-field-password"
-                      v-model="password"
+                      v-model="user.password"
                       :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                       :rules="passwordRules"
                       :type="showPassword ? 'text' : 'password'"
@@ -45,7 +45,7 @@
                   <v-text-field
                       prepend-icon="mdi-lock"
                       id="v-text-field-confirm-password"
-                      v-model="passwordConfirmation"
+                      v-model="user.passwordConfirmation"
                       :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                       :rules="[passwordConfirmationRules.required, passwordConfirmationRule]"
                       :type="showPassword ? 'text' : 'password'"
@@ -74,23 +74,24 @@
             </v-card>
           </v-flex>
           <DialogLoading
-              :isOpen="dialogLoadingIsOpen"
-              text="Creating new user"
+              :isOpen="dialogLoadingInstance.isOpen"
+              :text="dialogLoadingInstance.text"
+              :title="dialogLoadingInstance.title"
           />
           <DialogError
-              :title="dialogErrorTitle"
-              :text="dialogErrorText"
-              :isOpen="dialogErrorIsOpen"
-              @close="closeDialogError"
+              :isOpen="dialogErrorInstance.isOpen"
+              :text="dialogErrorInstance.text"
+              :title="dialogErrorInstance.title"
+              @close="dialogErrorInstance.close()"
               data-testid="dialog-error"
           >
-            <ErrorListHelper :dialogErrorJson="dialogErrorJson"/>
+            <ErrorListHelper v-if="helperErrorInstance.errorMap" :errorMap="helperErrorInstance.errorMap"/>
           </DialogError>
           <DialogInformation
-              :title="dialogInformationTitle"
-              :text="dialogInformationText"
-              :isOpen="dialogInformationIsOpen"
-              @close="handleConfirmUserCreated"
+              :isOpen="dialogInformationInstance.isOpen"
+              :text="dialogInformationInstance.text"
+              :title="dialogInformationInstance.title"
+              @close="dialogInformationInstance.close()"
           />
         </v-layout>
       </v-container>
@@ -99,99 +100,58 @@
 </template>
 
 <script>
-import {logMessage} from "@/Shared/log/debugFunctions";
-import {mapGetters} from 'vuex'
-import {handleSignUpRequest, signUpRequest} from "@/requests/signUpRequests";
+
+import {mapGetters, mapMutations} from 'vuex'
 import {signUpData} from '@/Shared/auth/authData'
 
 import DialogLoading from "@/components/DialogLoading/DialogLoading";
-import dialogLoadingData from "@/components/DialogLoading/dialogLoadingData";
-import {
-  openDialogLoading,
-  closeDialogLoading
-} from '@/components/DialogLoading/dialogLoadingMethods'
-
 import DialogError from "@/components/DialogError/DialogError";
-import dialogErrorData from "@/components/DialogError/dialogErrorData";
-import {
-  closeDialogError,
-  openDialogError,
-  initializeDialogErrorData
-} from '@/components/DialogError/dialogErrorMethods'
-
 import DialogInformation from "@/components/DialogInformation/DialogInformation";
-import dialogInformationData from "@/components/DialogInformation/dialogInformationData";
-import {
-  closeDialogInformation,
-  openDialogInformation,
-  initializeDialogInformationData
-} from '@/components/DialogInformation/dialogInformationMethods'
-
 import ErrorListHelper from "@/components/ErrorListHelper/ErrorListHelper";
-import errorListHelperData from "@/components/ErrorListHelper/errorListHelperData";
 
-import {
-  handleUserAuthErrorResponse,
-  handleUserAuthSuccessResponse
-} from '@/Shared/auth/authMethods'
+import DialogLoadingClass from "@/classes/Dialog/DialogLoading";
+import {DIALOG_ERROR_REQUEST_TITLE, DIALOG_LOADING_TEXT, DIALOG_LOADING_TITLE} from "@/Shared/constants";
+import DialogErrorClass from "@/classes/Dialog/DialogError";
+import DialogInformationClass from "@/classes/Dialog/DialogInformation";
+import HelperErrorClass from "@/classes/Helper/HelperError";
+import AuthHandlerClass from "@/classes/SignInHandler";
+import ErrorSignUpHandlerClass from "@/classes/ErrorSignUpHandler";
+import UserSignUp from "@/classes/UserSignUp";
+import CsrfAuthClass from "@/classes/CsrfAuth";
 
 export default {
   name: "SignUp",
   data: () => ({
     ...signUpData,
-    ...dialogErrorData,
-    ...dialogInformationData,
-    ...dialogLoadingData,
-    ...errorListHelperData
+
+    dialogLoadingInstance: new DialogLoadingClass({
+      "title": DIALOG_LOADING_TITLE,
+      "text": DIALOG_LOADING_TEXT,
+      "isOpen": false
+    }),
+    dialogErrorInstance: new DialogErrorClass({
+      "title": "",
+      "text": "",
+      "isOpen": false
+    }),
+    dialogInformationInstance: new DialogInformationClass({
+      "title": "",
+      "text": "",
+      "isOpen": false
+    }),
+    helperErrorInstance: new HelperErrorClass({}),
+    authHandlerInstance: new AuthHandlerClass(),
+    errorSignUpHandlerInstance: new ErrorSignUpHandlerClass(),
+
+    user: new UserSignUp({
+      "email": "",
+      "password": "",
+      "name": "",
+      "passwordConfirmation": ""
+    }),
+    csrfAuthClass: new CsrfAuthClass()
+
   }),
-  components: {
-    ErrorListHelper,
-    DialogInformation,
-    DialogLoading,
-    DialogError
-  },
-  methods: {
-    logMessage,
-
-    closeDialogError,
-    openDialogError,
-    initializeDialogErrorData,
-
-    closeDialogInformation,
-    openDialogInformation,
-    initializeDialogInformationData,
-
-    closeDialogLoading,
-    openDialogLoading,
-
-    handleUserAuthErrorResponse,
-    handleUserAuthSuccessResponse,
-    handleConfirmUserCreated() {
-      this.closeDialogInformation();
-
-      this.$router.push('/signin');
-    },
-
-    signUpFormIsValid() {
-      return this.$refs.form.validate();
-    },
-    signUpRequest,
-    handleSignUpRequest,
-    submitSignUpForm() {
-
-      if (this.signUpFormIsValid()) {
-
-        this.handleSignUpRequest({
-          name: this.name,
-          email: this.email,
-          password: this.password,
-          passwordConfirmation: this.passwordConfirmation
-        });
-
-      }
-    },
-
-  },
   computed: {
     ...mapGetters("appModule", [
       "isDebugEnabled"
@@ -199,6 +159,79 @@ export default {
     passwordConfirmationRule() {
       return this.password === this.passwordConfirmation || 'Password must match';
     },
+  },
+  components: {
+    ErrorListHelper,
+    DialogInformation,
+    DialogLoading,
+    DialogError
+  },
+  methods: {
+    ...mapMutations("appModule", [
+      "setCsrfCookieSettled",
+    ]),
+
+    handleConfirmUserCreated() {
+      this.$router.push('/signin');
+    },
+
+    handleSignInRequestError(error) {
+
+      if (error.response) {
+
+        console.log("error.data", error.data);
+        console.log("error.errors", error.errors);
+
+        this.helperErrorInstance.setErrorMap(error.response.data.errors);
+
+        this.dialogErrorInstance.setTitle(error.response.data.message);
+        this.dialogErrorInstance.setText("");
+        this.dialogErrorInstance.open();
+
+        this.errorSignUpHandlerInstance.handleUserAuthErrorResponse(error);
+
+      } else if (error.request) {
+
+        this.helperErrorInstance.setErrorMap(undefined);
+
+        this.dialogErrorInstance.setTitle(DIALOG_ERROR_REQUEST_TITLE);
+        this.dialogErrorInstance.setText(error.message);
+        this.dialogErrorInstance.open();
+
+        this.errorSignUpHandlerInstance.handleRequestError(error);
+
+      } else {
+        this.errorSignUpHandlerInstance.handleSettingUpError(error);
+      }
+    },
+
+    signUpFormIsValid() {
+      return this.$refs.form.validate();
+    },
+    async submitSignUpForm() {
+
+      if (!this.signUpFormIsValid()) {
+        return;
+      }
+
+      try {
+
+        this.dialogLoadingInstance.open();
+
+        if (!this.isCsrfCookieSettled) {
+          await this.csrfAuthClass.initializeCsrfCookie();
+          this.setCsrfCookieSettled(true);
+        }
+
+        const signUpResponse = await this.authHandlerInstance.signUpRequest(this.user);
+
+      } catch (error) {
+        this.handleSignInRequestError(error);
+      } finally {
+        this.dialogLoadingInstance.close();
+      }
+    },
+
   }
 }
 </script>

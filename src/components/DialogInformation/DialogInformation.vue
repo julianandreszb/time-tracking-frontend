@@ -23,7 +23,7 @@
             text
             @click="closeDialogInformation"
         >
-          {{ buttonTextFinish }}
+          {{ buttonTextClose }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -53,7 +53,7 @@ export default {
       required: true,
       type: String
     },
-    "buttonTextFinish": {
+    "buttonTextClose": {
       required: false,
       type: String,
       default: BUTTON_TEXT_CLOSE

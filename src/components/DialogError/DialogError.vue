@@ -10,7 +10,7 @@
         {{ title }}
       </v-card-title>
 
-      <v-card-text>
+      <v-card-text class="text-sm-h6 mt-4">
         <slot>{{ text }}</slot>
       </v-card-text>
 

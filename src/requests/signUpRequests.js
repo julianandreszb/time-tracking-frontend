@@ -6,6 +6,8 @@ async function handleSignUpRequest(user) {
 
         this.openDialogLoading();
 
+        await this.initializeCsrfCookie();
+
         const signUpResponse = await this.signUpRequest(user);
 
         this.handleUserAuthSuccessResponse(signUpResponse);
@@ -19,8 +21,6 @@ async function handleSignUpRequest(user) {
 async function signUpRequest(user) {
 
     const {name, email, password, passwordConfirmation} = user;
-
-    await apiClient.get('/sanctum/csrf-cookie');
 
     return apiClient.post('/api/register', {
         name: name,

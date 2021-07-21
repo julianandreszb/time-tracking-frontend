@@ -8,6 +8,7 @@
         color="primary"
         dark
     >
+      <v-card-title>{{ title }}</v-card-title>
       <v-card-text>
         {{ text }}
         <v-progress-linear
@@ -28,8 +29,12 @@ export default {
       required: true,
       type: Boolean
     },
-    "text": {
+    "title": {
       required: true,
+      type: String
+    },
+    "text": {
+      required: false,
       type: String
     }
   }
